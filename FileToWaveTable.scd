@@ -1,7 +1,7 @@
 //Initial tests using a file with floats
 
 (
-f = File("FileReadTestNum.sc", "w"); //create a file in computer
+f = File("FileReadTestNum.sc", "w"); //create a file in the computer
 (1..10).do{|n| f.write(n.asString ++ " ") }; //fill the file with data
 f.close;
 )
