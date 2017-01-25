@@ -2,6 +2,8 @@
 // SuperCollider Workspace
 // =====================================================================
 
+//Requires file Streamer.scd
+
 (
 Spec.add(\detune, [0.1, 10]);
 Spec.add(\diff, [0, 1]);
@@ -35,12 +37,14 @@ Ndef(\noise, {
 }).play
 )
 
+Ndef(\noise).fadeTime = 3;
+
 (
 ~timeInterval = 0.01;
 t = Pseq(~time, inf).asStream; // t needs fixing
-x = Pseq(~x_axis, inf).asStream;
-y = Pseq(~y_axis, inf).asStream;
-z = Pseq(~z_axis, inf).asStream;
+x = Pseq(~x, inf).asStream;
+y = Pseq(~y, inf).asStream;
+z = Pseq(~z, inf).asStream;
 
 Ndef(\noise)[1] = \set -> Pbind(
 	\dur, Pfunc{ ~timeInterval + rrand(0.1, 0.5)},

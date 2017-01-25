@@ -2,7 +2,9 @@
 // SuperCollider Workspace
 // =====================================================================
 
-f = FileReader.read("/Users/Home_KV/Dev/CosmoSonics/Data/20100603MSTK_f.txt", true, true);
+f = FileReader.read("/Users/Home_KV//Downloads/magnetic_storm_14-20:06:2016/20120714MSTK.F01.txt", true, true); // read the content of the file
+
+//f = FileReader.read("/Users/Home_KV/Dev/CosmoSonics/Data/20100603MSTK_f.txt", true, true);
 
 (
 ~dataFunc = {|day = 0|
@@ -13,7 +15,7 @@ f = FileReader.read("/Users/Home_KV/Dev/CosmoSonics/Data/20100603MSTK_f.txt", tr
 (
 Ndef(\daySonifier, {
 	var sig;
-	sig = Mix.ar([SinOsc.ar(\freq)])
+	sig = Mix.ar([SinOsc.ar(\freq.kr(180))]);
 	sig = sig.dup * 0.8;
 	Pan2.ar(sig.sum);
 }).play;
@@ -27,15 +29,16 @@ Tdef(\setDayVal, {
 		~dayValues = ~dataFunc.value(day: ~counter).postln;
 		{
 			Splay.ar(
-				SinOsc.ar(~dayValues.drop(1) / 100)
+				SinOsc.ar(~dayValues.drop(1))
 			)
 			* EnvGen.kr(Env.perc(0.01, 0.01), doneAction:2)
 		}.play;
-			0.3.wait;
+			0.08.wait;
 			}
 	}).play
 )
 
+Tdef(\setDayVal).pause;
 MKtl.find
 
 

@@ -4,7 +4,9 @@
 
 /* A dictionary that represents time, x, y and z axis of the data, and also representing single elements as array e.g [time, x, y, z] */
 (
-f = FileReader.read("Data/20100603MSTK_f.txt".resolveRelative, true, true); // wait until data is loaded
+f = FileReader.read("/Users/Home_KV//Downloads/magnetic_storm_14-20:06:2016/20120714MSTK.F01.txt", true, true); // read the content of the file
+
+//f = FileReader.read("Data/20100603MSTK_f.txt".resolveRelative, true, true); // wait until data is loaded
 
 ~dataFunc = ({|i| // function to select elements from the file
 	a = f.collect({|data| data[i].asFloat });
@@ -34,7 +36,7 @@ p.next; // Stream works pattern style
 (
 ~dur = 0.01;
 
-SynthDef("sineTones", { arg out, freq, sustain= 0.3, amp=1, pan;
+SynthDef("sineTones", { arg out, freq, sustain= 0.3, amp=0.8, pan;
  var env, u=1;
  env = EnvGen.kr(Env.perc(0.01, sustain), 1, doneAction:2);
  5.do { var d; d = exprand(0.01, 1); u = SinOsc.ar(d * 300, u, rrand(0.1,1.2) * d, 1) };
@@ -42,16 +44,19 @@ SynthDef("sineTones", { arg out, freq, sustain= 0.3, amp=1, pan;
 }).add;
 
 
-Pdef(\Chronos, Pbind(\instrument, \sineTones, \amp, 0.01, \dur, ~dur, \scale, Scale.minor, \freq, Pxrand(~time, inf).linlin(0, 1, 100, 1200.0))).play;
-Pdef(\X_Axis, Pbind(\instrument, \sineTones, \amp, 0.02, \dur, ~dur,  \scale, Scale.lydian, \freq, Pxrand(~x_axis, inf).linlin(0, 1, 100, 220.0))).play;
-Pdef(\Y_Axis, Pbind(\instrument, \sineTones, \amp, 0.3, \dur, ~dur,  \scale, Scale.mixolydian, \freq, Pxrand(~y_axis, inf).linlin(0, 1, 100, 660.0))).play;
-Pdef(\Z_Axis, Pbind(\instrument, \sineTones, \amp, 0.4, \dur, ~dur,  \scale, Scale.phrygian, \freq, Pxrand(~z_axis, inf).linlin(0, 1, 100, 1220.0))).play;
-PdefAllGui(16, nil, 300@300);
-Pdef.all.do{_.quant = 0};
+Pdef(\Chronos, Pbind(\instrument, \sineTones, \dur, ~dur, \amp, Prand([0, 0.1], inf), \freq, Pxrand(~time, inf).linlin(-1, 1, 100, 220.0)));
+Pdef(\X_Axis, Pbind(\instrument, \sineTones, \dur, ~dur, \amp, Prand([0, 0.1], inf), \freq, Pxrand(~x_axis, inf).linlin(-1, 1, 100, 440.0)));
+Pdef(\Y_Axis, Pbind(\instrument, \sineTones, \dur, ~dur, \amp, Prand([0, 0.1], inf), \freq, Pxrand(~y_axis, inf).linlin(-1, 1, 100, 660.0)));
+Pdef(\Z_Axis, Pbind(\instrument, \sineTones, \dur, ~dur, \amp, Prand([0, 0.1], inf), \freq, Pxrand(~z_axis, inf).linlin(-1, 1, 100, 880.0)));
+
+
+Ndef(\chronos)[0] = Pdef(\Chronos);
+Ndef(\x_axis)[0] = Pdef(\X_Axis);
+Ndef(\y_axis)[0] = Pdef(\Y_Axis);
+Ndef(\z_axis)[0] = Pdef(\Z_Axis);
 )
 
 Pdef.clear;
-
 
 (
 ~timeInterval = 1;
