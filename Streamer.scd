@@ -4,9 +4,9 @@
 
 /* A dictionary that represents time, x, y and z axis of the data, and also representing single elements as array e.g [time, x, y, z] */
 (
-f = FileReader.read("/Users/Home_KV//Downloads/magnetic_storm_14-20:06:2016/20120714MSTK.F01.txt", true, true); // read the content of the file
+//f = FileReader.read("/Users/Home_KV//Downloads/magnetic_storm_14-20:06:2016/20120714MSTK.F01.txt", true, true); // read the content of the large file
 
-//f = FileReader.read("Data/20100603MSTK_f.txt".resolveRelative, true, true); // wait until data is loaded
+f = FileReader.read("Data/20100603MSTK_f.txt".resolveRelative, true, true); // wait until data is loaded
 
 ~dataFunc = ({|i| // function to select elements from the file
 	a = f.collect({|data| data[i].asFloat });
@@ -25,7 +25,7 @@ f = FileReader.read("/Users/Home_KV//Downloads/magnetic_storm_14-20:06:2016/2012
 ~y_axis = ~data[\y];
 ~z_axis = ~data[\z];
 
-[~time, ~x_axis, ~y_axis, ~z_axis].do{|items| items.plot };
+[~time, ~x_axis, ~y_axis, ~z_axis].do{| items | items.plot };
 )
 
 p = Pxrand(~time, inf).asStream;
@@ -34,20 +34,22 @@ p.next; // Stream works pattern style
 // proof of concept
 
 (
-~dur = 0.01;
+~dur = 0.05;
 
-SynthDef("sineTones", { arg out, freq, sustain= 0.3, amp=0.8, pan;
- var env, u=1;
- env = EnvGen.kr(Env.perc(0.01, sustain), 1, doneAction:2);
- 5.do { var d; d = exprand(0.01, 1); u = SinOsc.ar(d * 300, u, rrand(0.1,1.2) * d, 1) };
- Out.ar(out, SinOsc.ar([u, u + 1] * freq, 0, amp * env));
+SynthDef("sineTones", { arg out, freq=120.0, sustain=0.3, amp=0.8, pan;
+ var env, sig;
+ env = EnvGen.kr(Env.sine(sustain), 1, doneAction:2);
+ 5.do { sig = SinOsc.ar(freq + Rand(1.0, 2.01), 0, amp)};
+ Out.ar(out, sig * env * amp);
 }).add;
 
+Pdef(\Chronos, Pbind(\instrument, \sineTones, \dur, Pfunc{~dur}, \freq, Pxrand(~time, inf).linlin(-1, 1, 100, 220.0)));
 
-Pdef(\Chronos, Pbind(\instrument, \sineTones, \dur, ~dur, \amp, Prand([0, 0.1], inf), \freq, Pxrand(~time, inf).linlin(-1, 1, 100, 220.0)));
-Pdef(\X_Axis, Pbind(\instrument, \sineTones, \dur, ~dur, \amp, Prand([0, 0.1], inf), \freq, Pxrand(~x_axis, inf).linlin(-1, 1, 100, 440.0)));
-Pdef(\Y_Axis, Pbind(\instrument, \sineTones, \dur, ~dur, \amp, Prand([0, 0.1], inf), \freq, Pxrand(~y_axis, inf).linlin(-1, 1, 100, 660.0)));
-Pdef(\Z_Axis, Pbind(\instrument, \sineTones, \dur, ~dur, \amp, Prand([0, 0.1], inf), \freq, Pxrand(~z_axis, inf).linlin(-1, 1, 100, 880.0)));
+Pdef(\X_Axis, Pbind(\instrument, \sineTones, \dur, Pfunc{~dur}, \freq, Pxrand(~x_axis, inf).linlin(-1, 1, 100, 220.0)));
+
+Pdef(\Y_Axis, Pbind(\instrument, \sineTones, \dur, Pfunc{~dur}, \freq, Pxrand(~y_axis, inf).linlin(-1, 1, 100, 220.0)));
+
+Pdef(\Z_Axis, Pbind(\instrument, \sineTones, \dur, Pfunc{~dur}, \freq, Pxrand(~z_axis, inf).linlin(-1, 1, 100, 220.0)));
 
 
 Ndef(\chronos)[0] = Pdef(\Chronos);
@@ -103,3 +105,5 @@ w = Window.new("ControlPanel", bounds:Rect(100, 500, 400, 120)).layout_(
 ).front;
 w.onClose_({Tdef(\streamer).stop;});
 )
+
+NdefMixer(s)

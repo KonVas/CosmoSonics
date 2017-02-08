@@ -41,28 +41,38 @@ b = Buffer.alloc(s, 1024);
 c = Buffer.alloc(s, 1024);
 d = Buffer.alloc(s, 1024);
 e = Buffer.alloc(s, 1024);
+)
+
+(
+fork{
+	loop{0.05.wait;
+		//j = ;
+		j = d.values.flat.normalize(-1, 1).resamp0(512, 'sine');
+		b.loadCollection(Signal.newFrom(j + Array.rand(32,0,1).cubed).asWavetable);
+	};
+}
+)
+
+b.plot;
+
+Ndef(\wavetable, {|buf| Osc.ar(b.bufnum, d[\x] / 10, 0, 0.2) }).play; //test is playing
+
+
+(
+Ndef(\wavetable)[1] = \xset ->
+Pbind(
+	\dur, Prand(~time * 2, inf).max(0.2),
+	\buf, Pxrand([b, c, d, e], inf),
 );
+)
 
-b.loadCollection(Signal.newFrom(~time).asWavetable);
-c.loadCollection(Signal.newFrom(~x).asWavetable);
-d.loadCollection(Signal.newFrom(~y).asWavetable);
-e.loadCollection(Signal.newFrom(~z).asWavetable);
-
-
-Ndef(\wavetable, {|buf| Osc.ar(buf, [\freq.kr(8, 0.1), \freq.kr + 1]) * 0.8 }); //test is playing
-
-Ndef(\wavetable)[1] = \xset -> Pbind(\dur, Prand(~time * 2, inf).max(0.2), \scale, Scale.phrygian, \buf, Pxrand([b, c, d, e], inf), \freq, Prand(~x * 20, inf).max(8));
-
-Ndef(\wavetable).fadeTime = 0.05;
+Ndef(\wavetable).fadeTime = 0.25;
 
 Ndef.clear;
 
-e.plot
+Ndef(\wavetable).edit;
+Ndef(\wavetable).play;
 
-Ndef(\wavetable).edit
-Ndef(\wavetable).play
-
-s.scope
-
-s.record
+s.scope;
+s.record;
 s.stopRecording;

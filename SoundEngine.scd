@@ -16,7 +16,7 @@ Spec.add(\dtime, [0, 2]);
 )
 
 (
-Ndef(\noise, {
+Ndef(\pad, {
 	var drift = LFNoise2.kr(0.1, \detune.kr(0.2, 0.3));
 	var sig = WhiteNoise.ar(0.01);//WhiteNoise.ar(0.01);
 	//	sig = sig * EnvGen.kr(Env.perc(0.01, 0.1), Dust.kr(0.3));
@@ -24,20 +24,20 @@ Ndef(\noise, {
 	sig = Splay.ar(sig);
 	sig  = LeakDC.ar(sig);
 	sig = Greyhole.ar(sig,
-		\dtime.kr(0.1, 0.3),
-		\damp.kr(0.1, 0.3),
-		\size.kr(1, 0.3),
-		\diff.kr(0.707, 0.3),
-		\fb.kr(0.1, 0.3),
-		\modDepth.kr(0.01, 0.3),
-		\modFreq.kr(2, 0.3)
+		\dtime.kr(0.1),
+		\damp.kr(0.1),
+		\size.kr(1),
+		\diff.kr(0.707),
+		\fb.kr(0.1),
+		\modDepth.kr(0.01),
+		\modFreq.kr(2)
 	);
 	sig = HPF.ar(sig * 0.8);
 	sig = Compander.ar(sig, sig.reverse);
 }).play
 )
 
-Ndef(\noise).fadeTime = 3;
+Ndef(\pad).fadeTime = 0.1;
 
 (
 ~timeInterval = 0.01;
@@ -46,7 +46,7 @@ x = Pseq(~x, inf).asStream;
 y = Pseq(~y, inf).asStream;
 z = Pseq(~z, inf).asStream;
 
-Ndef(\noise)[1] = \set -> Pbind(
+Ndef(\pad)[1] = \set -> Pbind(
 	\dur, Pfunc{ ~timeInterval + rrand(0.1, 0.5)},
 	\detune, Pfunc{ \detune.asSpec.map(x.next) },
 	 \dtime, Pfunc{ \dtime.asSpec.map(x.next) },
@@ -59,6 +59,7 @@ Ndef(\noise)[1] = \set -> Pbind(
 );
 )
 
+
 (
 w = Window.new("ControlPanel", bounds:Rect(0, 0, 400, 320)).layout_(
 	VLayout(
@@ -70,9 +71,7 @@ w = Window.new("ControlPanel", bounds:Rect(0, 0, 400, 320)).layout_(
 			])
 			.action_({|butt|
 				if(butt.value == 1){
-					
 				}{
-					
 				};
 			}),
 			~slider = Slider(parent:w)
@@ -87,10 +86,10 @@ w = Window.new("ControlPanel", bounds:Rect(0, 0, 400, 320)).layout_(
 	)
 ).front;
 w.onClose_({"n"});
-Ndef(\noise).edit(parent:w);
-Ndef(\wavetable).edit(parent:w)
+
+Ndef(\pad).edit(parent:w);
 )
 
-Ndef(\noise).clear(8);
+Ndef(\pad).clear(8);
 
-Ndef(\noise).edit;
+Ndef(\pad).edit;
